@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Rule List";
+}
+@section scripts
+{
+    <script>
+        $.ajax({
+            url: "/Proxy/Rules",
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response) {
+                    if (response.success) {
+                        $.each(response.data, function (i, n) {
+                            $("#ruleTable tbody").append("<tr><td>" + n.name + "</td><td><a href='/Rule/Run/" + n.ruleId + "' class='btn btn-success btn-xs'><i class='fa fa-play'></i> Run Rule</a></td></tr>");
+                        });
+                    }
+                    else
+                        alert("An error occurred while rules saving.");
+                }
+                else
+                    alert("An error occurred while rules saving.");
+            },
+            error: function () {
+                alert("Error!!!");
+            }
+        });
+    </script>
+}
+
+<div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+        <table class="table table-responsive table-bordered table-hover table-striped" id="ruleTable">
+            <thead>
+                <tr>
+                    <th>Rule Name</th>
+                    <th style="width: 94px;"></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

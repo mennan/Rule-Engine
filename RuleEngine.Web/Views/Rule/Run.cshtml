@@ -1,0 +1,176 @@
+﻿@{
+    ViewData["Title"] = "Run Rule";
+}
+@section scripts{
+    <link href="~/lib/jsoneditor/jsoneditor.css" rel="stylesheet"/>
+    <link href="~/css/select2-bootstrap.css" rel="stylesheet" asp-append-version="true"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" asp-append-version="true"/>
+    <link href="~/css/querybuilder/query-builder.default.css" rel="stylesheet" asp-append-version="true"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.full.min.js" asp-append-version="true"></script>
+    <script src="~/lib/jsoneditor/jsoneditor.min.js"></script>
+    <script src="~/js/querybuilder/jQuery.extendext.min.js" asp-append-version="true"></script>
+    <script src="~/js/querybuilder/doT.min.js" asp-append-version="true"></script>
+    <script src="~/js/querybuilder/interact.min.js" asp-append-version="true"></script>
+    <script src="~/js/querybuilder/query-builder.min.js" asp-append-version="true"></script>
+    <script>
+        var jqueryQueryBuilder;
+        var editor;
+        var resultJsonEditor;
+        var filterDefination = [];
+        var ruleContent = "";
+        var ruleName = "";
+        var ruleFilter = "";
+        var fetchErrorMessage = "An error occurred while rule fetching.";
+
+        $.ajax({
+            url: "/Proxy/Rules/@ViewBag.RuleId",
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(response) {
+                if (response) {
+                    if (response.success) {
+                        ruleContent = response.data.content;
+                        ruleName = response.data.name;
+                        ruleFilter = response.data.filter;
+
+                        mapFilterDefination();
+
+                        if (filterDefination.length > 0) {
+                            loadQueryBuilder();
+                            $(".query-row").show();
+                        }
+                    } else
+                        alert(fetchErrorMessage);
+                } else
+                    alert(fetchErrorMessage);
+            },
+            error: function() {
+                alert("Error!!!");
+            }
+        });
+
+        $("#runRule").on("click",
+            function() {
+                var jsonData = "";
+                $(".result-row").hide();
+
+                try {
+                    jsonData = JSON.stringify(editor.get());
+                } catch (e) {
+                    alert("Invalid JSON data");
+                    return;
+                }
+
+                if (jsonData !== "") {
+                    var data = {
+                        RuleContent: ruleContent,
+                        Data: jsonData
+                    };
+
+                    $.ajax({
+                        url: "/Proxy/Rules/@ViewBag.RuleId",
+                        type: "POST",
+                        data: JSON.stringify(data),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function(response) {
+                            resultJsonEditor.set(response.data);
+                            $(".result-row").show();
+                        },
+                        error: function() {
+                            alert("Error!!!");
+                        }
+                    });
+                }
+            });
+
+        var container = document.getElementById('jsoneditor');
+        var resultContainer = document.getElementById('resultJsonEditor');
+        var options = {
+            mode: 'code',
+            onError: function(err) {
+                alert(err.toString());
+            },
+            onModeChange: function(newMode, oldMode) {
+            }
+        };
+
+        function loadQueryBuilder() {
+            jqueryQueryBuilder = $("#builder").queryBuilder({
+                plugins: ["bt-tooltip-errors", "filter-description"],
+                allow_empty: false,
+                filters: filterDefination,
+                conditions: ["AND", "OR", "NOT"],
+                sortable: true,
+                icons: {
+                    add_group: "fa fa-plus-square",
+                    add_rule: "fa fa-plus-circle",
+                    remove_group: "fa fa-minus-square",
+                    remove_rule: "fa fa-minus-circle",
+                    error: "fa fa-exclamation-triangle",
+                    sortable: "fa fa-exclamation-triangle"
+                }
+            });
+
+            jqueryQueryBuilder.queryBuilder("setRules", JSON.parse(ruleContent));
+
+            $("input, select", "#builder").each(function() {
+                $(this).attr("disabled", true);
+            });
+
+            $(".group-actions .btn", "#builder").remove();
+            $(".rule-actions .btn", "#builder").remove();
+
+            editor = new JSONEditor(container, options, []);
+            resultJsonEditor = new JSONEditor(resultContainer, options, []);
+        }
+
+        function mapFilterDefination() {
+            var jsonData = JSON.parse(ruleFilter);
+
+            $.each(jsonData,
+                function(i, n) {
+                    filterDefination.push({
+                        "label": n.label,
+                        "field": n.field,
+                        "type": n.type,
+                        "input": null,
+                        "multiple": null,
+                        "values": null,
+                        "operators": null,
+                        "template": null,
+                        "itemBankNotFilterable": null,
+                        "itemBankNotColumn": null,
+                        "id": i + 1
+                    });
+                });
+        }
+    </script>
+}
+
+<div class="row query-row">
+    <div class="col-md-12">
+        <div id="builder"></div>
+    </div>
+</div>
+<div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label>Your Data</label>
+            <div id="jsoneditor"></div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <button type="button" class="btn btn-warning" id="runRule"><i class="fa fa-play"></i> Run Rule</button>
+    </div>
+</div>
+
+<div class="row result-row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label>Result</label>
+            <div id="resultJsonEditor"></div>
+        </div>
+    </div>
+</div>

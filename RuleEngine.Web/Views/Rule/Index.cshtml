@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "New Rule";
+}
+@section scripts{
+    <link href="~/lib/jsoneditor/jsoneditor.css" rel="stylesheet" />
+    <link href="~/css/select2-bootstrap.css" rel="stylesheet" asp-append-version="true" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" asp-append-version="true" />
+    <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/querybuilder/query-builder.default.css" rel="stylesheet" asp-append-version="true" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.full.min.js" asp-append-version="true"></script>
+    <script src="~/lib/jsoneditor/jsoneditor.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js" asp-append-version="true"></script>
+    <script src="~/js/querybuilder/jQuery.extendext.min.js" asp-append-version="true"></script>
+    <script src="~/js/querybuilder/doT.min.js" asp-append-version="true"></script>
+    <script src="~/js/querybuilder/interact.min.js" asp-append-version="true"></script>
+    <script src="~/js/querybuilder/query-builder.min.js" asp-append-version="true"></script>
+    <script>
+        $.fn.editable.defaults.mode = 'inline';
+    </script>
+    <script src="~/source/site/js/site.js" asp-append-version="true"></script>
+}
+
+<div class="row" style="margin-top: 10px;">
+    <div class="col-md-9">
+        <div class="form-group">
+            <label for="jsonSchemeAddress">JSON Scheme Address</label>
+            <input type="url" class="form-control" id="jsonSchemeAddress" style="max-width: initial;">
+        </div>
+    </div>
+    <div class="col-md-3">
+        <label style="display: block;">&nbsp;</label>
+        <button type="button" id="fetchScheme" class="btn btn-warning pull-right" style="width: 100%;"><i class="fa fa-cloud-download"></i> Fetch JSON Scheme</button>
+    </div>
+    <div class="col-md-12">
+        <div class="form-group">
+            <label>JSON Scheme</label>
+            <div id="jsoneditor"></div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <button type="button" id="parseJson" class="btn btn-danger"><i class="fa fa-check"></i> Parse JSON</button>
+    </div>
+</div>
+
+<div class="row query-row">
+    <div class="col-md-12">
+        <label for="ruleName"><strong>Rule Name</strong></label>
+        <input type="text" class="form-control" id="ruleName" maxlength="100" style="max-width: initial;">
+    </div>
+    <div class="col-md-12">
+        <div id="builder"></div>
+        <button type="button" class="btn btn-success" id="save-rules"><i class="fa fa-save"></i> Save</button>
+    </div>
+</div>
